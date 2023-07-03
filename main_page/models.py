@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import RegexValidator
 
 # Create your models here.
 class DishCategory(models.Model):
@@ -41,6 +42,7 @@ class Dish(models.Model):
 
 class Event(models.Model):
     name = models.CharField(max_length=50, unique=True)
+    data = models.DateField()
     position = models.PositiveSmallIntegerField()
     desc = models.TextField(max_length=500, blank=True)
     price = models.DecimalField(max_digits=8, decimal_places=2)
@@ -71,3 +73,50 @@ class Gallery(models.Model):
     class Meta:
         verbose_name_plural = 'Gallery'
         ordering = ('photo',  )
+
+
+class Booking(models.Model):
+    name = models.CharField(max_length=60)
+    email = models.EmailField()
+
+
+    phone_regex = RegexValidator(
+        regex=r'^(\+38)?0\d{9}$',
+        message='Phone number must be entered in the format: +380xxxxxxxxx, 0xxxxxxxxx',
+    )
+    phone = models.CharField(validators=[phone_regex], max_length=20)
+    date = models.DateField()
+    time = models.TimeField()
+    people = models.PositiveSmallIntegerField()
+    message = models.TextField(max_length=200, blank=True)
+
+    is_processed = models.BooleanField(default=False)
+    date_in = models.DateTimeField(auto_now_add=True)
+    date_modify = models.DateTimeField(auto_now=True)
+    
+
+    def __str__(self):
+        return f'{self.name}: {self.phone}: {self.date}'
+    
+
+    class Meta:
+        ordering = ('-date_in',  )
+
+
+class Contact(models.Model):
+    name = models.CharField(max_length=60)
+    email = models.EmailField()
+    subject = models.CharField(max_length=60)
+    message = models.TextField(max_length=200, blank=True)
+
+    is_processed = models.BooleanField(default=False)
+    date_in = models.DateTimeField(auto_now_add=True)
+    date_modify = models.DateTimeField(auto_now=True)
+    
+
+    def __str__(self):
+        return f'{self.name}: {self.email}'
+    
+
+    class Meta:
+        ordering = ('-date_in',  )
